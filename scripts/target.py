@@ -21,11 +21,13 @@ TARGET_SOCK = os.environ.get("DEFAULT_SOCK", "/tmp/jam_target.sock")
 DEFAULT_DOCKER_IMAGE = "debian:stable-slim"
 
 # Maximum number of cores to use for docker containers
-MAX_CORES = int(os.environ.get("DOCKER_CORES", "16"))
+DOCKER_CPU_SET = os.environ.get("DOCKER_CPU_SET", "16-32")
 
 # Whether to run targets in docker containers (1) or directly on host (0)
 RUN_DOCKER = int(os.environ.get("RUN_DOCKER", "1"))
 
+# Forces a platform for docker commands (run, pull, etc)
+DOCKER_PLATFORM = "linux/amd64"
 
 @dataclass
 class Target:
@@ -393,7 +395,7 @@ def get_docker_image(target: str) -> bool:
         return False
 
     try:
-        subprocess.run(["docker", "pull", docker_image], check=True)
+        subprocess.run(["docker", "pull", "--platform", DOCKER_PLATFORM, docker_image], check=True)
         print(f"Successfully pulled Docker image: {docker_image}")
         return True
     except subprocess.CalledProcessError:
@@ -507,11 +509,13 @@ def run_docker_image(target: str) -> None:
         "--user",
         f"{os.getuid()}:{os.getgid()}",
         "--platform",
-        "linux/amd64",
+        DOCKER_PLATFORM,
         "--cpuset-cpus",
-        f"0-{MAX_CORES}",
+        f"{DOCKER_CPU_SET}",
         "--cpu-shares",
         "2048",
+        "--cpu-quota",
+        "-1",
         "--memory",
         "8g",
         "--memory-swap",
@@ -538,8 +542,6 @@ def run_docker_image(target: str) -> None:
         "IPC_LOCK",
         "-v",
         "/tmp:/tmp",
-        "-v",
-        f"{Path(__file__).parent}/targets/{target}/latest:/jam",
     ]
 
     if env:
@@ -547,13 +549,14 @@ def run_docker_image(target: str) -> None:
 
     if image == DEFAULT_DOCKER_IMAGE:
         docker_cmd.extend(["-w", "/jam"])
+        docker_cmd.extend(["-e", "HOME=/jam"])
+        docker_cmd.extend(["-v", f"{Path(__file__).parent}/targets/{target}/latest:/jam"])
 
     docker_cmd.append(image)
 
     # Handle cmd as string
     if cmd:
         import shlex
-
         docker_cmd.extend(shlex.split(cmd))
 
     # Add priority args for Linux
@@ -572,7 +575,7 @@ def run_docker_image(target: str) -> None:
             "-n0",
             "taskset",
             "-c",
-            f"0-{MAX_CORES}",
+            f"{DOCKER_CPU_SET}",
         ]
         docker_cmd = priority_cmd + docker_cmd
 

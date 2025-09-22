@@ -1,4 +1,18 @@
 {
+  "polkajam": {
+    "repo": "none",
+    "file": "polkajam-fuzz",
+    "cmd": "polkajam-fuzz",
+    "args": "--source remote --step-period 0 --target-sock {TARGET_SOCK}",
+    "env": "RUST_LOG=off"
+  },
+  "polkajam_int": {
+    "repo": "none",
+    "file": "polkajam-fuzz",
+    "cmd": "polkajam-fuzz",
+    "args": "--source remote --step-period 0 --target-sock {TARGET_SOCK} --pvm-interpreter-backend",
+    "env": "RUST_LOG=off"
+  },
   "vinwolf": {
     "repo": "bloppan/conformance_testing",
     "clone": 1,
@@ -46,7 +60,7 @@
       "linux": "jamixir_linux-x86-64_0.7.0_tiny.tar.gz",
       "macos": "jamixir_macos-arm64_0.7.0_tiny.tar.gz"
     },
-    "cmd": "jamixir fuzzer --log info --socket-path {TARGET_SOCK}"
+    "cmd": "jamixir fuzzer --log error --socket-path {TARGET_SOCK}"
   },
   "javajam": {
     "image": "ghcr.io/methodfive/javajam:latest-amd64",
@@ -121,5 +135,10 @@
       "macos": "tessera-node-Darwin-arm64.tar.gz"
     },
     "cmd": "tessera-node --fuzzer --socket {TARGET_SOCK}"
+  },
+  "typeberry": {
+    "image": "ghcr.io/fluffylabs/typeberry:latest",
+    "cmd": "--version=1 fuzz-target {TARGET_SOCK}",
+    "env": "JAM_LOG=log"
   }
 }

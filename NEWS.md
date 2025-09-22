@@ -1,3 +1,42 @@
+### [20-09-25]
+
+Updated "Testing Setup" section in fuzz-reports/README.md with comprehensive
+performance testing configuration details. The documentation now includes
+detailed kernel parameters, CPU frequency settings, and Docker configuration
+used for benchmarking.
+
+### [16-09-25]
+
+Fuzzing is **temporarily on hold** for targets that cannot correctly process the
+`minifuzz` test session: tessera, fastroll, jamixir, pyjamaz, boka, jamzilla,
+jamduna, jamzig.
+
+New `minifuzz` tool available at `fuzz-proto/minifuzz/minifuzz.py`.
+This lightweight fuzzing tool allows teams to replay pre-constructed message sequences
+against their JAM implementations for testing and debugging purposes of their fuzzer
+protocol implementation.
+
+Updated `fuzz-proto/README.md` with a new "Preliminary Self-Testing" section.
+Teams are now strongly encouraged to perform self-testing using the `minifuzz` tool
+before submitting their target implementations for fuzzy testing.
+
+### [14-09-25]
+
+New batch of challenging traces and reports released.
+These traces are tested only with targets implementing fuzzer protocol v1.
+
+Trace 1756548916 has been retired due to invalidation by the `tiny` L parameter change.
+Note: The maximum age of the lookup anchor (L in GP) is now set to 24 when using the
+tiny configuration.
+
+
+### [12-09-25]
+
+Fuzzer Protocol v1 specification has been released.  
+Refer to the [PR](https://github.com/davxy/jam-conformance/pull/47) for details on the changes.  
+
+The examples folder has been updated with a sample session using the new message format.
+
 ### [09-09-25]
 
 Interesting traces batch and reports
